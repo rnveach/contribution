@@ -3,7 +3,6 @@
           "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
           "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
 
-
 <module name = "Checker">
     <property name="charset" value="UTF-8"/>
     
@@ -16,16 +15,7 @@
     </module>
 
     <module name="TreeWalker">
-         <!-- Example of sevntu.checkstyle Check usage -->
-         <!-- <module name="NestedSwitchCheck"/> -->
-         
-         <!-- Example of checkstyle Check usage -->
-         <module name="AbstractClassName"/>
+         <!-- Example of Check usage -->
+         <!-- <module name="AbstractClassName"/> -->
     </module>
-<!--
-    <module name="SeverityMatchFilter">
-        <property name="severity" value="warning"/>
-        <property name="acceptOnMatch" value="false"/>
-    </module>
--->
 </module>

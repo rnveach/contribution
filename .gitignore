@@ -6,4 +6,5 @@ target
 bin
 *~
 /checkstyle-tester/src/main/java/
+/checkstyle-tester/downloads/
 /qulice/src/main/java/
