@@ -1,3 +1,4 @@
+
 package com.github.checkstyle;
 
 import java.io.BufferedReader;
@@ -13,6 +14,7 @@ import com.github.checkstyle.utils.CheckstyleUtil;
 import com.github.checkstyle.utils.DiffReportUtil;
 import com.github.checkstyle.utils.TesterUtil;
 import com.github.checkstyle.utils.Utils;
+import com.github.checkstyle.utils.TesterUtil.RunType;
 
 public class MainRegression {
     public static void main(String[] args) throws Exception {
@@ -40,14 +42,17 @@ public class MainRegression {
         }
 
         CheckstyleUtil.init(repository);
+        TesterUtil.init();
+        DiffReportUtil.init();
 
         CheckstyleUtil.resetMaster();
         CheckstyleUtil.install(repositoryLocation);
-        TesterUtil.run(projectsToTest, "savemaster");
+
+        TesterUtil.run(projectsToTest, RunType.MASTER);
 
         CheckstyleUtil.resetPull(userName, branchName);
         CheckstyleUtil.install(repositoryLocation);
-        TesterUtil.run(projectsToTest, "savepull");
+        TesterUtil.run(projectsToTest, RunType.PULL);
 
         DiffReportUtil.run(projectsToTest);
     }

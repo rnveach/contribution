@@ -1,3 +1,4 @@
+
 package com.github.checkstyle.utils;
 
 import java.io.File;
@@ -101,17 +102,17 @@ public final class CheckstyleUtil {
         System.out.println("Installing Checkstyle");
 
         int result = MAVEN.doMain(new String[] {
-                "--batch-mode", //
-                "clean", //
-                "install", //
-                "-Dmaven.test.skip=true", //
-                "-Dcheckstyle.ant.skip=true", //
-                "-Dcheckstyle.skip=true", //
-                "-Dpmd.skip=true", //
-                "-Dfindbugs.skip=true", //
-                "-Dcobertura.skip=true", //
-                "-Dforbiddenapis.skip=true", //
-                "-Dxml.skip=true"
+            "--batch-mode", //
+            "clean", //
+            "install", //
+            "-Dmaven.test.skip=true", //
+            "-Dcheckstyle.ant.skip=true", //
+            "-Dcheckstyle.skip=true", //
+            "-Dpmd.skip=true", //
+            "-Dfindbugs.skip=true", //
+            "-Dcobertura.skip=true", //
+            "-Dforbiddenapis.skip=true", //
+            "-Dxml.skip=true"
         }, checkstyleLocation, System.out, System.err);
 
         System.out.println("Install finished with: " + result);

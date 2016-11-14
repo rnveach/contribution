@@ -1,3 +1,4 @@
+
 package com.github.checkstyle.utils;
 
 import java.io.File;
@@ -7,6 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+
+import com.github.checkstyle.utils.TesterUtil.RunType;
 
 public final class Utils {
     private Utils() {
@@ -26,8 +29,28 @@ public final class Utils {
         return new File("../checkstyle-tester/src/main/java").getCanonicalPath();
     }
 
+    public static String getTesterTargetDirectory() throws IOException {
+        return new File("../checkstyle-tester/target").getCanonicalPath();
+    }
+
+    public static String getTesterSiteDirectory() throws IOException {
+        return new File("../checkstyle-tester/target/site").getCanonicalPath();
+    }
+
     public static String getTesterDownloadsDirectory() throws IOException {
         return new File("../checkstyle-tester/downloads").getCanonicalPath();
+    }
+
+    public static String getSaveDirectory(RunType type) throws IOException {
+        return new File("../checkstyle-tester/" + type.getFolderName()).getCanonicalPath();
+    }
+
+    public static String getSaveRefDirectory() throws IOException {
+        return new File("../checkstyle-tester/saverefs").getCanonicalPath();
+    }
+
+    public static String getResultsDirectory() throws IOException {
+        return new File("results").getCanonicalPath();
     }
 
     public static void createFolder(File folder) {
@@ -81,6 +104,30 @@ public final class Utils {
                 if (file.getFileName().toString().endsWith(".java")) {
                     Files.copy(file, destination.resolve(source.relativize(file)));
                 }
+
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
+
+    public static void moveFolderContents(Path source, Path destination) throws IOException {
+        Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult preVisitDirectory(final Path dir,
+                    final BasicFileAttributes attrs) throws IOException {
+                if (!dir.getFileName().toString().equals(".git")) {
+                    Files.createDirectories(destination.resolve(source.relativize(dir)));
+
+                    return FileVisitResult.CONTINUE;
+                }
+
+                return FileVisitResult.SKIP_SUBTREE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs)
+                    throws IOException {
+                Files.move(file, destination.resolve(source.relativize(file)));
 
                 return FileVisitResult.CONTINUE;
             }
