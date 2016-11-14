@@ -12,6 +12,8 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.URIish;
@@ -46,6 +48,8 @@ public final class CheckstyleUtil {
         git.checkout().setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
                 .setName("origin/master").setStartPoint("origin/master").call();
 
+        displayHead();
+
         final Set<String> removed = git.clean().setCleanDirectories(true).setForce(true).call();
         for (String item : removed) {
             System.out.println("Removed: " + item);
@@ -72,9 +76,20 @@ public final class CheckstyleUtil {
         git.checkout().setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
                 .setName(remoteBranch).setStartPoint(remoteBranch).call();
 
+        displayHead();
+
         final Set<String> removed = git.clean().setCleanDirectories(true).setForce(true).call();
         for (String item : removed) {
             System.out.println("Removed: " + item);
+        }
+    }
+
+    private static void displayHead() throws Exception {
+        try (RevWalk walk = new RevWalk(gitRepository)) {
+            final RevCommit commit = walk.parseCommit(gitRepository.findRef("HEAD").getObjectId());
+
+            System.out
+                    .println("Head at: " + commit.getId().name() + " " + commit.getShortMessage());
         }
     }
 

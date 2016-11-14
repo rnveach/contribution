@@ -21,7 +21,8 @@ public class MainRegression {
         System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "INFO");
         System.setProperty(SimpleLogger.SHOW_LOG_NAME_KEY, "false");
 
-        if ((args == null) || (args.length < 2)) {
+        if ((args == null) || (args.length < 3)) {
+            System.err.println("Expecting 3 parameters: checkstyleLocation userName branchName");
             System.exit(1);
         }
 
