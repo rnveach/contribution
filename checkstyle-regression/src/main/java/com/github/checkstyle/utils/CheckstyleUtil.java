@@ -40,11 +40,13 @@ public final class CheckstyleUtil {
         git.fetch().setRemote("origin").call();
 
         // reset current working branch
+
         final Ref newHead = git.reset().setMode(ResetType.HARD).setRef("HEAD").call();
 
         System.out.println("head reset to: " + newHead.toString());
 
         // checkout remote branch: master
+
         git.checkout().setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
                 .setName("origin/master").setStartPoint("origin/master").call();
 
@@ -73,6 +75,7 @@ public final class CheckstyleUtil {
         }
 
         // checkout remote branch
+
         git.checkout().setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
                 .setName(remoteBranch).setStartPoint(remoteBranch).call();
 
