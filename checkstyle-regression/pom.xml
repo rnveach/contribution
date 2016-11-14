@@ -36,5 +36,40 @@
       <version>4.5.0.201609210915-r</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.5</version>
+    </dependency>
+
   </dependencies>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>2.4</version>
+          <executions>
+            <execution>
+              <phase>initialize</phase>
+              <goals>
+                <goal>install-file</goal>
+              </goals>
+              <configuration>
+                <groupId>myGroupId</groupId>
+                <artifactId>myArtifactId</artifactId>
+                <version>myVersion</version>
+                <packaging>jar</packaging>
+                <file>${basedir}/lib/patch-diff-report-tool.jar</file>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+      </plugins>
+    </pluginManagement>
+  </build>
 </project>

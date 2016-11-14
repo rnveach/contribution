@@ -1,4 +1,4 @@
-package com.github.checkstyle;
+package com.github.checkstyle.utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,7 +8,10 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
-public class Utils {
+public final class Utils {
+    private Utils() {
+    }
+
     public static String getWorkingDirectory() throws IOException {
         final File directory = new File(new File(".").getCanonicalPath());
 
@@ -25,6 +28,19 @@ public class Utils {
 
     public static String getTesterDownloadsDirectory() throws IOException {
         return new File("../checkstyle-tester/downloads").getCanonicalPath();
+    }
+
+    public static void createFolder(File folder) {
+        if (!folder.exists() && !folder.mkdirs()) {
+            System.err.println("Failed to create folder: " + folder.getAbsolutePath());
+            System.exit(1);
+        }
+    }
+
+    public static void moveRenameFile(File sourceDirectory, String sourceFile,
+            File destinationDirectory, String destinationFile) {
+        new File(sourceDirectory, sourceFile)
+                .renameTo(new File(destinationDirectory, destinationFile));
     }
 
     public static void deleteFolderContents(File folder) {
