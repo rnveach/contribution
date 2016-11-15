@@ -1,12 +1,17 @@
 
 package com.github.checkstyle.utils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.maven.cli.MavenCli;
 import org.codehaus.plexus.archiver.tar.TarGZipUnArchiver;
@@ -38,7 +43,7 @@ public final class TesterUtil {
         }
     }
 
-    private static final MavenCli MAVEN = new MavenCli();
+    private static final MavenCli MAVEN = new MavenCli(Utils.classWorld);
 
     public static void init() throws IOException {
         final File downloadDirectory = new File(Utils.getTesterDownloadsDirectory());
@@ -51,7 +56,7 @@ public final class TesterUtil {
 
         Utils.deleteFolderContents(saveRefDirectory);
 
-        for (RunType type : RunType.values()) {
+        for (final RunType type : RunType.values()) {
             final File saveLocation = new File(Utils.getSaveDirectory(type));
 
             Utils.createFolder(saveLocation);
@@ -60,7 +65,7 @@ public final class TesterUtil {
     }
 
     public static void run(List<Project> projectsToTest, RunType saveLocation) throws Exception {
-        for (Project project : projectsToTest) {
+        for (final Project project : projectsToTest) {
             setupSourceFolder(project);
 
             runCheckstyle(project.getExcludes());
@@ -114,8 +119,8 @@ public final class TesterUtil {
                         .setBranch("refs/heads/master").call();
             }
             else {
-                projRepository =
-                        new Git(new FileRepositoryBuilder().findGitDir(gitDirectory).build());
+                projRepository = new Git(
+                        new FileRepositoryBuilder().findGitDir(gitDirectory).build());
             }
 
             // reset and copy
@@ -128,7 +133,7 @@ public final class TesterUtil {
 
             projRepository.clean().setCleanDirectories(true).setForce(true).call();
 
-            Utils.copyFolderContents(gitDirectory.toPath(), sourceDirectory.toPath());
+            Utils.copyFolderJavaContents(gitDirectory.toPath(), sourceDirectory.toPath());
         }
         else {
             throw new IllegalStateException(
@@ -138,15 +143,15 @@ public final class TesterUtil {
 
     private static void runCheckstyle(String excludes) throws IOException {
         final int result = MAVEN.doMain(new String[] {
-            "--batch-mode", //
-            "clean", //
-            "site", //
-            "-Dcheckstyle.excludes=" + excludes, //
-            "-Dcheckstyle.config.location=my_check.xml", //
-            // "-DMAVEN_OPTS=-Xmx3024m"
+                "--batch-mode", //
+                "clean", //
+                "site", //
+                "-Dcheckstyle.excludes=" + excludes, //
+                "-Dcheckstyle.config.location=my_check.xml", //
+                // "-DMAVEN_OPTS=-Xmx3024m"
         }, Utils.getTesterDirectory(), System.out, System.err);
 
-        System.out.println("Checkstyle finished with: " + result);
+        System.out.println("Tester finished with: " + result);
 
         if (result != 0) {
             System.exit(result);
@@ -166,20 +171,56 @@ public final class TesterUtil {
     }
 
     private static void minimize() throws IOException {
-        final String contents = new String(Files
-                .readAllBytes(new File(Utils.getTesterSiteDirectory() + "/index.html").toPath()));
+        final List<String> allLinks = retrieveAllLinks(
+                Utils.getTesterSiteDirectory() + "/index.html");
 
-        // TODO: minimize
+        final File xrefDirectory = new File(Utils.getTesterSiteDirectory() + "/xref");
+
+        Utils.deleteFolderContents(xrefDirectory.toPath(), allLinks);
+
+        // TODO: Utils.deletEmptyeFolderContents(xrefDirectory);
+    }
+
+    private static final Pattern LINK = Pattern.compile("<a href=\"./xref/([^#\"]+)#\\d+\">");
+
+    private static List<String> retrieveAllLinks(String file) throws IOException {
+        final List<String> result = new ArrayList<String>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                final Matcher matcher = LINK.matcher(line);
+
+                while (matcher.find()) {
+                    final String text = matcher.group(1);
+                    final int position = Collections.binarySearch(result, text);
+
+                    if (position < 0) {
+                        result.add(-1 - position, text);
+                    }
+                }
+            }
+        }
+
+        // standard files that must stay
+
+        result.add("allclasses-frame.html");
+        result.add("index.html");
+        result.add("overview-frame.html");
+        result.add("overview-summary.html");
+
+        return result;
     }
 
     private static void save(String repositoryName, RunType saveLocation) throws IOException {
-        // TODO: change xml paths to save directory
-
         final File sourceDirectory = new File(Utils.getTesterSrcDirectory());
         final File targetDirectory = new File(Utils.getTesterTargetDirectory());
-        final File saveDirectory =
-                new File(Utils.getSaveDirectory(saveLocation) + "/" + repositoryName);
+        final File saveDirectory = new File(
+                Utils.getSaveDirectory(saveLocation) + "/" + repositoryName);
         final File saveRefDirectory = new File(Utils.getSaveRefDirectory() + "/" + repositoryName);
+
+        // TODO: change xml paths to save directory
 
         Utils.createFolder(saveDirectory);
         Utils.moveFolderContents(targetDirectory.toPath(), saveDirectory.toPath());

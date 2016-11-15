@@ -13,15 +13,15 @@ import com.github.checkstyle.structs.Project;
 import com.github.checkstyle.utils.CheckstyleUtil;
 import com.github.checkstyle.utils.DiffReportUtil;
 import com.github.checkstyle.utils.TesterUtil;
-import com.github.checkstyle.utils.Utils;
 import com.github.checkstyle.utils.TesterUtil.RunType;
+import com.github.checkstyle.utils.Utils;
 
 public class MainRegression {
     public static void main(String[] args) throws Exception {
         System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "INFO");
         System.setProperty(SimpleLogger.SHOW_LOG_NAME_KEY, "false");
 
-        if ((args == null) || (args.length < 3)) {
+        if (args == null || args.length < 3) {
             System.err.println("Expecting 3 parameters: checkstyleLocation userName branchName");
             System.exit(1);
         }
@@ -46,8 +46,9 @@ public class MainRegression {
         TesterUtil.init();
         DiffReportUtil.init();
 
-        CheckstyleUtil.resetMaster();
-        CheckstyleUtil.install(repositoryLocation);
+        // TODO
+        // CheckstyleUtil.resetMaster();
+        // CheckstyleUtil.install(repositoryLocation);
 
         TesterUtil.run(projectsToTest, RunType.MASTER);
 
@@ -59,7 +60,7 @@ public class MainRegression {
     }
 
     private static List<Project> loadProperties() throws Exception {
-        List<Project> projectsToTest = new ArrayList<Project>();
+        final List<Project> projectsToTest = new ArrayList<Project>();
 
         try (BufferedReader br = new BufferedReader(
                 new FileReader(Utils.getTesterDirectory() + "/projects-to-test-on.properties"))) {
@@ -68,10 +69,12 @@ public class MainRegression {
             while ((line = br.readLine()) != null) {
                 line = line.trim();
 
-                if (line.length() == 0)
+                if (line.length() == 0) {
                     continue;
-                if (line.startsWith("#"))
+                }
+                if (line.startsWith("#")) {
                     continue;
+                }
 
                 final Project information = new Project(line.split("\\|"));
 

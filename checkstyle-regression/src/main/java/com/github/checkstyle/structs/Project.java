@@ -10,22 +10,27 @@ public class Project {
     protected final String excludes;
 
     public Project(String[] line) {
-        if (line.length < 3)
+        if (line.length < 3) {
             throw new IllegalArgumentException("Line too short: " + Arrays.toString(line));
+        }
 
-        this.repositoryName = line[0];
-        this.repositoryType = line[1];
-        this.repositoryUrl = line[2];
+        repositoryName = line[0];
+        repositoryType = line[1];
+        repositoryUrl = line[2];
 
-        if (line.length < 4)
-            this.commitId = null;
-        else
-            this.commitId = line[3];
+        if (line.length < 4 || line[3].trim().isEmpty()) {
+            commitId = null;
+        }
+        else {
+            commitId = line[3];
+        }
 
-        if (line.length < 5)
-            this.excludes = null;
-        else
-            this.excludes = line[4];
+        if (line.length < 5 || line[4].trim().isEmpty()) {
+            excludes = null;
+        }
+        else {
+            excludes = line[4];
+        }
     }
 
     public String getRepositoryName() {

@@ -22,7 +22,7 @@ public final class CheckstyleUtil {
     private CheckstyleUtil() {
     }
 
-    private static final MavenCli MAVEN = new MavenCli();
+    private static final MavenCli MAVEN = new MavenCli(Utils.classWorld);
 
     public static Repository gitRepository;
     public static Git git;
@@ -53,7 +53,7 @@ public final class CheckstyleUtil {
         displayHead();
 
         final Set<String> removed = git.clean().setCleanDirectories(true).setForce(true).call();
-        for (String item : removed) {
+        for (final String item : removed) {
             System.out.println("Removed: " + item);
         }
     }
@@ -82,7 +82,7 @@ public final class CheckstyleUtil {
         displayHead();
 
         final Set<String> removed = git.clean().setCleanDirectories(true).setForce(true).call();
-        for (String item : removed) {
+        for (final String item : removed) {
             System.out.println("Removed: " + item);
         }
     }
@@ -99,10 +99,10 @@ public final class CheckstyleUtil {
     private static void setRemote(String userName) throws Exception {
         final List<RemoteConfig> remotes = git.remoteList().call();
 
-        for (RemoteConfig remote : remotes) {
+        for (final RemoteConfig remote : remotes) {
             System.out.println(remote.getName());
 
-            for (URIish uris : remote.getURIs()) {
+            for (final URIish uris : remote.getURIs()) {
                 if (uris.getPath().startsWith("/" + userName + "/checkstyle.git")) {
                     // TODO: createdPrRemote = false;
                     prRemoteName = remote.getName();
@@ -119,18 +119,18 @@ public final class CheckstyleUtil {
     public static void install(String checkstyleLocation) {
         System.out.println("Installing Checkstyle");
 
-        int result = MAVEN.doMain(new String[] {
-            "--batch-mode", //
-            "clean", //
-            "install", //
-            "-Dmaven.test.skip=true", //
-            "-Dcheckstyle.ant.skip=true", //
-            "-Dcheckstyle.skip=true", //
-            "-Dpmd.skip=true", //
-            "-Dfindbugs.skip=true", //
-            "-Dcobertura.skip=true", //
-            "-Dforbiddenapis.skip=true", //
-            "-Dxml.skip=true"
+        final int result = MAVEN.doMain(new String[] {
+                "--batch-mode", //
+                "clean", //
+                "install", //
+                "-Dmaven.test.skip=true", //
+                "-Dcheckstyle.ant.skip=true", //
+                "-Dcheckstyle.skip=true", //
+                "-Dpmd.skip=true", //
+                "-Dfindbugs.skip=true", //
+                "-Dcobertura.skip=true", //
+                "-Dforbiddenapis.skip=true", //
+                "-Dxml.skip=true"
         }, checkstyleLocation, System.out, System.err);
 
         System.out.println("Install finished with: " + result);

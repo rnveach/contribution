@@ -8,11 +8,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collections;
+import java.util.List;
+
+import org.codehaus.plexus.classworlds.ClassWorld;
 
 import com.github.checkstyle.utils.TesterUtil.RunType;
 
 public final class Utils {
     private Utils() {
+    }
+
+    public static final ClassWorld classWorld;
+
+    static {
+        classWorld = new ClassWorld("plexus.core", Utils.class.getClassLoader());
     }
 
     public static String getWorkingDirectory() throws IOException {
@@ -67,10 +77,10 @@ public final class Utils {
     }
 
     public static void deleteFolderContents(File folder) {
-        File[] files = folder.listFiles();
+        final File[] files = folder.listFiles();
 
         if (files != null) {
-            for (File f : files) {
+            for (final File f : files) {
                 if (f.isDirectory()) {
                     deleteFolderContents(f);
 
@@ -81,14 +91,34 @@ public final class Utils {
                 }
             }
         }
-
     }
 
-    public static void copyFolderContents(Path source, Path destination) throws IOException {
+    public static void deleteFolderContents(Path source, final List<String> filesToKeep)
+            throws IOException {
         Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
             @Override
-            public FileVisitResult preVisitDirectory(final Path dir,
-                    final BasicFileAttributes attrs) throws IOException {
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                    throws IOException {
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                    throws IOException {
+                if (Collections.binarySearch(filesToKeep, source.relativize(file).toString()) < 0) {
+                    Files.delete(file);
+                }
+
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
+
+    public static void copyFolderJavaContents(Path source, Path destination) throws IOException {
+        Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                    throws IOException {
                 if (!dir.getFileName().toString().equals(".git")) {
                     Files.createDirectories(destination.resolve(source.relativize(dir)));
 
@@ -99,7 +129,7 @@ public final class Utils {
             }
 
             @Override
-            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs)
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                     throws IOException {
                 if (file.getFileName().toString().endsWith(".java")) {
                     Files.copy(file, destination.resolve(source.relativize(file)));
@@ -113,8 +143,8 @@ public final class Utils {
     public static void moveFolderContents(Path source, Path destination) throws IOException {
         Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
             @Override
-            public FileVisitResult preVisitDirectory(final Path dir,
-                    final BasicFileAttributes attrs) throws IOException {
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                    throws IOException {
                 if (!dir.getFileName().toString().equals(".git")) {
                     Files.createDirectories(destination.resolve(source.relativize(dir)));
 
@@ -125,7 +155,7 @@ public final class Utils {
             }
 
             @Override
-            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs)
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                     throws IOException {
                 Files.move(file, destination.resolve(source.relativize(file)));
 
