@@ -10,6 +10,7 @@ import org.apache.maven.cli.MavenCli;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
+import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -47,8 +48,18 @@ public final class CheckstyleUtil {
 
         // checkout remote branch: master
 
-        git.checkout().setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-                .setName("origin/master").setStartPoint("origin/master").call();
+        while (true) {
+            try {
+                git.checkout().setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                        .setName("origin/master").setStartPoint("origin/master").call();
+                break;
+            }
+            catch (final CheckoutConflictException ex) {
+                // TODO
+                // ex.getConflictingPaths();
+                throw ex;
+            }
+        }
 
         displayHead();
 
@@ -100,15 +111,12 @@ public final class CheckstyleUtil {
         final List<RemoteConfig> remotes = git.remoteList().call();
 
         for (final RemoteConfig remote : remotes) {
-            System.out.println(remote.getName());
-
             for (final URIish uris : remote.getURIs()) {
                 if (uris.getPath().startsWith("/" + userName + "/checkstyle.git")) {
                     // TODO: createdPrRemote = false;
                     prRemoteName = remote.getName();
                     return;
                 }
-                System.out.println(uris.getPath());
             }
         }
 

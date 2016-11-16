@@ -5,6 +5,10 @@ target
 .idea/
 bin
 *~
+/checkstyle-regression/results/
 /checkstyle-tester/src/main/java/
 /checkstyle-tester/downloads/
+/checkstyle-tester/savemaster/
+/checkstyle-tester/savepull/
+/checkstyle-tester/saverefs/
 /qulice/src/main/java/

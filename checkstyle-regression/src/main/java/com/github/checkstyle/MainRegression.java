@@ -46,17 +46,19 @@ public class MainRegression {
         TesterUtil.init();
         DiffReportUtil.init();
 
-        // TODO
-        // CheckstyleUtil.resetMaster();
-        // CheckstyleUtil.install(repositoryLocation);
+        CheckstyleUtil.resetMaster();
+        CheckstyleUtil.install(repositoryLocation);
 
         TesterUtil.run(projectsToTest, RunType.MASTER);
 
         CheckstyleUtil.resetPull(userName, branchName);
         CheckstyleUtil.install(repositoryLocation);
+
         TesterUtil.run(projectsToTest, RunType.PULL);
 
         DiffReportUtil.run(projectsToTest);
+
+        System.out.println("Regression finished");
     }
 
     private static List<Project> loadProperties() throws Exception {

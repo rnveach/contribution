@@ -1,7 +1,11 @@
 
 package com.github.checkstyle.utils;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -24,6 +28,8 @@ public final class Utils {
     static {
         classWorld = new ClassWorld("plexus.core", Utils.class.getClassLoader());
     }
+
+    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
     public static String getWorkingDirectory() throws IOException {
         final File directory = new File(new File(".").getCanonicalPath());
@@ -162,5 +168,28 @@ public final class Utils {
                 return FileVisitResult.CONTINUE;
             }
         });
+    }
+
+    public static void replaceLinesInFile(File directory, String fileName, String find,
+            String replace) throws IOException {
+        final File temp = File.createTempFile("cs-regression", ".tmp");
+        final File input = new File(directory, fileName);
+
+        try (final BufferedReader reader = new BufferedReader(new FileReader(input));
+                final BufferedWriter writer = new BufferedWriter(new FileWriter(temp))) {
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                writer.write(line.replace(find, replace));
+                writer.write(LINE_SEPARATOR);
+            }
+        }
+
+        if (!input.delete()) {
+            System.err.println("Failed to delete file: " + input.getAbsolutePath());
+            System.exit(1);
+        }
+
+        temp.renameTo(input);
     }
 }

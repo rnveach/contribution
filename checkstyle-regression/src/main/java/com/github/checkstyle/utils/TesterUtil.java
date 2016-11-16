@@ -65,13 +65,21 @@ public final class TesterUtil {
     }
 
     public static void run(List<Project> projectsToTest, RunType saveLocation) throws Exception {
+        System.out.println("Running Tester with " + saveLocation.name());
+
         for (final Project project : projectsToTest) {
+            System.out.println("Running Tester on " + project.toString());
+
             setupSourceFolder(project);
 
-            runCheckstyle(project.getExcludes());
+            runTester(project.getExcludes());
 
             processResult(project.getRepositoryName(), saveLocation);
         }
+
+        // clear out source from last run
+
+        Utils.deleteFolderContents(new File(Utils.getTesterSrcDirectory()));
     }
 
     private static void setupSourceFolder(Project project) throws Exception {
@@ -141,11 +149,16 @@ public final class TesterUtil {
         }
     }
 
-    private static void runCheckstyle(String excludes) throws IOException {
+    private static void runTester(String excludes) throws IOException {
         final int result = MAVEN.doMain(new String[] {
                 "--batch-mode", //
                 "clean", //
                 "site", //
+                // the next line is needed because maven embeder uses the same
+                // arguments as the previous run (Checkstyle install), which set
+                // this value to 'true', but the value passes over to here and
+                // tester requires it to be 'false'
+                "-Dcheckstyle.skip=false", //
                 "-Dcheckstyle.excludes=" + excludes, //
                 "-Dcheckstyle.config.location=my_check.xml", //
                 // "-DMAVEN_OPTS=-Xmx3024m"
@@ -220,7 +233,8 @@ public final class TesterUtil {
                 Utils.getSaveDirectory(saveLocation) + "/" + repositoryName);
         final File saveRefDirectory = new File(Utils.getSaveRefDirectory() + "/" + repositoryName);
 
-        // TODO: change xml paths to save directory
+        Utils.replaceLinesInFile(targetDirectory, "checkstyle-result.xml",
+                sourceDirectory.getCanonicalPath(), saveRefDirectory.getCanonicalPath());
 
         Utils.createFolder(saveDirectory);
         Utils.moveFolderContents(targetDirectory.toPath(), saveDirectory.toPath());

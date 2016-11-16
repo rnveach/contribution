@@ -33,6 +33,12 @@ public class Project {
         }
     }
 
+    @Override
+    public String toString() {
+        return "{" + repositoryName + "," + repositoryType + "," + repositoryUrl + "," + commitId
+                + "," + excludes + "}";
+    }
+
     public String getRepositoryName() {
         return repositoryName;
     }
