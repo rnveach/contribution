@@ -7,10 +7,11 @@ target
 .idea/
 bin
 *~
-/checkstyle-tester/src/main/java/
+/checkstyle-tester/src/main/java
 /checkstyle-tester/repositories
 /checkstyle-tester/target
 /checkstyle-tester/reports
+/checkstyle-tester/results
 /checkstyle-tester/tmp_reports
 /qulice/src/main/java/
 .DS_Store

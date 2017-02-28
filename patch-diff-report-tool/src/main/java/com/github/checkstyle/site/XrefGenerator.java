@@ -151,6 +151,7 @@ class XrefGenerator {
                         ENCODING, ENCODING);
                 }
                 catch (IOException ignore) {
+		    ignore.printStackTrace();
                     result = null;
                 }
             }

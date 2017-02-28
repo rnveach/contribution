@@ -208,13 +208,13 @@ function launch {
 
 			echo "Running Checkstyle with config $CONFIG ... with excludes $EXCLUDES"
 
-			if [ "$EXCLUDES" == "" ]; then
-				echo "java -Xmx3024m -jar $CS_JAR -c $CONFIG -f xml -o $1/$REPO_NAME/results.xml $CURRENT_REPO_DIR"
-				java -Xmx3024m -jar $CS_JAR -c $CONFIG -f xml -o $1/$REPO_NAME/results.xml $CURRENT_REPO_DIR
-			else
-				echo "java -Xmx3024m -jar $CS_JAR -c $CONFIG -f xml -o $1/$REPO_NAME/results.xml -x '$EXCLUDES' $CURRENT_REPO_DIR"
-				java -Xmx3024m -jar $CS_JAR -c $CONFIG -f xml -o $1/$REPO_NAME/results.xml -x "$EXCLUDES" $CURRENT_REPO_DIR
-			fi
+			#if [ "$EXCLUDES" == "" ]; then
+				echo "java -Xmx3024m -jar $CS_JAR -c $CONFIG -f xml -o $1/$REPO_NAME/results.xml $CURRENT_REPO_DIR -e $CURRENT_REPO_DIR/.git"
+				java -Xmx3024m -jar $CS_JAR -c $CONFIG -f xml -o $1/$REPO_NAME/results.xml $CURRENT_REPO_DIR -e $CURRENT_REPO_DIR/.git
+			#else
+			#	echo "java -Xmx3024m -jar $CS_JAR -c $CONFIG -f xml -o $1/$REPO_NAME/results.xml -x '$EXCLUDES' $CURRENT_REPO_DIR -e $CURRENT_REPO_DIR/.git"
+			#	java -Xmx3024m -jar $CS_JAR -c $CONFIG -f xml -o $1/$REPO_NAME/results.xml -x "$EXCLUDES" $CURRENT_REPO_DIR -e $CURRENT_REPO_DIR/.git
+			#fi
 
 			if [ "$?" == "-2" ] || [ "$?" == "-1" ];
 			then

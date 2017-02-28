@@ -14,8 +14,8 @@
 		<checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
 		<checkstyle.version>8.44-SNAPSHOT</checkstyle.version>
 		<sevntu-checkstyle.version>1.39.0</sevntu-checkstyle.version>
-		<checkstyle.config.location>https://raw.githubusercontent.com/checkstyle/checkstyle/master/src/main/resources/google_checks.xml</checkstyle.config.location>
-		<checkstyle.failsOnError>true</checkstyle.failsOnError>
+		<checkstyle.config.location>my_checks.xml</checkstyle.config.location>
+		<checkstyle.failsOnError>false</checkstyle.failsOnError>
 	</properties>
 
 	<build>
@@ -36,6 +36,9 @@
 						<version>${sevntu-checkstyle.version}</version>
 					</dependency>
 				</dependencies>
+<configuration>
+              <argLine>-Xmx3024m</argLine>
+</configuration>
 	        </plugin>
 
 		</plugins>
