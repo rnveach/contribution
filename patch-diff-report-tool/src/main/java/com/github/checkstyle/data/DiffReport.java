@@ -86,9 +86,28 @@ public final class DiffReport {
                 }
                 else {
                     Collections.sort(diff, new PositionOrderComparator());
+
+                    identifySimilarRecords(diff);
+
                     records.put(filename, diff);
                 }
             }
+        }
+    }
+
+    private void identifySimilarRecords(List<CheckstyleRecord> diff) {
+        CheckstyleRecord previousRecord = null;
+
+        for (CheckstyleRecord record : diff) {
+            if (previousRecord != null) {
+                if (previousRecord.getIndex() != record.getIndex()
+                        && previousRecord.getLine() == record.getLine()
+                        && previousRecord.getColumn() == record.getColumn()) {
+                    // TODO
+                }
+            }
+
+            previousRecord = record;
         }
     }
 
