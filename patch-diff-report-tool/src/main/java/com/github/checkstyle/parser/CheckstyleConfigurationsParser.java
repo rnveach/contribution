@@ -91,17 +91,30 @@ public final class CheckstyleConfigurationsParser {
      * @param patchConfigPath
      *        path to the patch configuration xml.
      * @return merged configurations.
-     * @throws FileNotFoundException
-     *         if files not found.
-     * @throws XMLStreamException
-     *         on internal parser error.
+     * @throws IllegalStateException 
+     *         if files not found or on internal parser error.
      */
-    public static MergedConfigurationModule parse(Path baseConfigPath, Path patchConfigPath)
-            throws FileNotFoundException, XMLStreamException {
-        final ConfigurationModule baseRoot =
-                parseConfiguration(baseConfigPath, ROOT_MODULE_NAME);
-        final ConfigurationModule patchRoot =
-                parseConfiguration(patchConfigPath, ROOT_MODULE_NAME);
+    public static MergedConfigurationModule parse(Path baseConfigPath, Path patchConfigPath) {
+        final ConfigurationModule baseRoot;
+        final ConfigurationModule patchRoot;
+        try {
+            baseRoot = parseConfiguration(baseConfigPath, ROOT_MODULE_NAME);
+        }
+        // -@cs[IllegalCatch] There is no other way to deliver filename that was under
+        // processing.
+        catch (Exception ex) {
+            throw new IllegalStateException("Exception was thrown while processing "
+                    + baseConfigPath, ex);
+        }
+        try {
+            patchRoot = parseConfiguration(patchConfigPath, ROOT_MODULE_NAME);
+        }
+        // -@cs[IllegalCatch] There is no other way to deliver filename that was under
+        // processing.
+        catch (Exception ex) {
+            throw new IllegalStateException("Exception was thrown while processing "
+                    + baseConfigPath, ex);
+        }
         return ConfigurationMerger.merge(baseRoot, patchRoot, ROOT_MODULE_NAME);
     }
 
