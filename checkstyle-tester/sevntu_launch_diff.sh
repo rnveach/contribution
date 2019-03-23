@@ -417,7 +417,10 @@ if $RUN_REPORTS ; then
 	if [ -f $OUTPUT_FILE ] ; then
 		rm $OUTPUT_FILE
 	fi
-	echo "<html><body>" >> $OUTPUT_FILE
+	echo "<html><head>" >> $OUTPUT_FILE
+	echo "<link rel='icon' href='https://checkstyle.org/images/favicon.png' type='image/x-icon' />" >> $OUTPUT_FILE
+	echo "<title>Checkstyle Sevntu Tester Report Diff Summary</title>" >> $OUTPUT_FILE
+	echo "</head><body>" >> $OUTPUT_FILE
 	echo "<h3><span style=\"color: #ff0000;\">" >> $OUTPUT_FILE
 	echo "<strong>WARNING: Excludes are ignored by diff.groovy.</strong>" >> $OUTPUT_FILE
 	echo "</span></h3>" >> $OUTPUT_FILE
@@ -452,6 +455,8 @@ if $RUN_REPORTS ; then
 		echo "Patch branch last commit message: $MSG<br />" >> $OUTPUT_FILE
 		echo "</h6>" >> $OUTPUT_FILE
 	fi
+	echo "Tested projects: ${#EXTPROJECTS[@]}" >> $OUTPUT_FILE
+	echo "<br /><br /><br />" >> $OUTPUT_FILE
 
 	for extp in "${EXTPROJECTS[@]}"
 	do

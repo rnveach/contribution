@@ -162,7 +162,10 @@ if [ "$2" == "pitest--all" ]; then
 	if [ -f $OUTPUT_FILE ] ; then
 		rm $OUTPUT_FILE
 	fi
-	echo "<html><body>" >> $OUTPUT_FILE
+	echo "<html><head>" >> $OUTPUT_FILE
+	echo "<link rel='icon' href='https://checkstyle.org/images/favicon.png' type='image/x-icon' />" >> $OUTPUT_FILE
+	echo "<title>Checkstyle Tester Report Pitest Summary</title>" >> $OUTPUT_FILE
+	echo "</head><body>" >> $OUTPUT_FILE
 	echo "<h3><span style=\"color: #ff0000;\">" >> $OUTPUT_FILE
 	echo "</span></h3>" >> $OUTPUT_FILE
 
