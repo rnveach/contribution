@@ -5,7 +5,7 @@
 # Note: Use full paths
 # ============================================================
 
-CONTACTSERVER=false
+CONTACTSERVER=true
 
 PULL_REMOTE=pull
 
