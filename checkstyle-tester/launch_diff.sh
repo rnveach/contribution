@@ -212,11 +212,11 @@ function launch {
 			echo "Running Checkstyle with config $2 ... with excludes $EXCLUDES"
 
 			#if [ "$EXCLUDES" == "" ]; then
-				echo "java -Xmx3024m -jar $CS_JAR -c $2 -f xml -o $1/$REPO_NAME/results.xml $CURRENT_REPO_DIR -e $CURRENT_REPO_DIR/.git"
-				java -Xmx3024m -jar $CS_JAR -c $2 -f xml -o $1/$REPO_NAME/results.xml $CURRENT_REPO_DIR -e $CURRENT_REPO_DIR/.git
+				echo "java -Xmx3024m -jar $CS_JAR -c $2 -f xml -o $1/$REPO_NAME/results.xml $CURRENT_REPO_DIR -e $CURRENT_REPO_DIR/.git --executeIgnoredModules"
+				java -Xmx3024m -jar $CS_JAR -c $2 -f xml -o $1/$REPO_NAME/results.xml $CURRENT_REPO_DIR -e $CURRENT_REPO_DIR/.git --executeIgnoredModules
 			#else
-			#	echo "java -Xmx3024m -jar $CS_JAR -c $2 -f xml -o $1/$REPO_NAME/results.xml -x '$EXCLUDES' $CURRENT_REPO_DIR -e $CURRENT_REPO_DIR/.git"
-			#	java -Xmx3024m -jar $CS_JAR -c $2 -f xml -o $1/$REPO_NAME/results.xml -x "$EXCLUDES" $CURRENT_REPO_DIR -e $CURRENT_REPO_DIR/.git
+			#	echo "java -Xmx3024m -jar $CS_JAR -c $2 -f xml -o $1/$REPO_NAME/results.xml -x '$EXCLUDES' $CURRENT_REPO_DIR -e $CURRENT_REPO_DIR/.git --executeIgnoredModules"
+			#	java -Xmx3024m -jar $CS_JAR -c $2 -f xml -o $1/$REPO_NAME/results.xml -x "$EXCLUDES" $CURRENT_REPO_DIR -e $CURRENT_REPO_DIR/.git --executeIgnoredModules
 			#fi
 
 			if [ "$?" == "-2" ] || [ "$?" == "-1" ];
