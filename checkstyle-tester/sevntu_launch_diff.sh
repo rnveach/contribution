@@ -209,8 +209,8 @@ function launch {
 			echo "Running Checkstyle with config $CONFIG ... with excludes $EXCLUDES"
 
 			#if [ "$EXCLUDES" == "" ]; then
-				echo "java -Xmx3024m -jar $CS_JAR -c $CONFIG -f xml -o $1/$REPO_NAME/results.xml --executeIgnoredModules $CURRENT_REPO_DIR"
-				java -Xmx3024m -jar $CS_JAR -c $CONFIG -f xml -o $1/$REPO_NAME/results.xml --executeIgnoredModules $CURRENT_REPO_DIR
+				echo "java -Xmx3024m -jar $CS_JAR -c $CONFIG -f xml -o $1/$REPO_NAME/results.xml $CURRENT_REPO_DIR -e $CURRENT_REPO_DIR/.git --executeIgnoredModules"
+				java -Xmx3024m -jar $CS_JAR -c $CONFIG -f xml -o $1/$REPO_NAME/results.xml $CURRENT_REPO_DIR -e $CURRENT_REPO_DIR/.git --executeIgnoredModules
 			#else
 			#	echo "java -Xmx3024m -jar $CS_JAR -c $CONFIG -f xml -o $1/$REPO_NAME/results.xml -x '$EXCLUDES' --executeIgnoredModules $CURRENT_REPO_DIR"
 			#	java -Xmx3024m -jar $CS_JAR -c $CONFIG -f xml -o $1/$REPO_NAME/results.xml -x "$EXCLUDES" --executeIgnoredModules $CURRENT_REPO_DIR
@@ -344,7 +344,6 @@ if $PACKAGE_PULL ; then
 		exit 1
 	fi
 
-	git reset --hard HEAD
 	git checkout $PULL_REMOTE/$1
 	git clean -f -d
 
