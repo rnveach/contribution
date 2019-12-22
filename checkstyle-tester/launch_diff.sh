@@ -432,7 +432,7 @@ if $RUN_REPORTS ; then
 			else
 				BASE_CONFIG="$TESTER_DIR/my_checks_$extp.xml"
 
-				if [ ! -f $CONFIG ] ; then
+				if [ ! -f $BASE_CONFIG ] ; then
 					BASE_CONFIG="$TESTER_DIR/my_checks.xml"
 				fi
 			fi
