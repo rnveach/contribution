@@ -52,9 +52,9 @@ if (!isset($action)) {
 
 	if (!isset($config) || !isset($branchName)) {
 		echo "Some fields are missing for a save.";
-	} else if (preg_match("/[^a-zA-Z0-9#_\-]/i", $branchName)) {
+	} else if (preg_match("/[^a-zA-Z0-9#_\-\.]/i", $branchName)) {
 		die("Improper branch '" . $branchName . "' was supplied.");
-	} else if (preg_match("/[^a-zA-Z0-9#_\-]/i", $masterBranchName)) {
+	} else if (preg_match("/[^a-zA-Z0-9#_\-\.]/i", $masterBranchName)) {
 		die("Improper branch '" . $masterBranchName . "' was supplied.");
 	} else if (preg_match("/[^a-zA-Z0-9#_\-]/i", $prOnly)) {
 		die("Improper pr attribute '" . $prOnly . "' was supplied.");
