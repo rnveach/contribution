@@ -22,6 +22,7 @@ package com.github.checkstyle.data;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import com.github.checkstyle.parser.CheckstyleReportsParser;
@@ -62,6 +63,22 @@ public final class DiffReport {
     }
 
     /**
+     * Utility to merge the patch related contents of the {@code other} class to the current.
+     *
+     * @param other The other class to merge.
+     */
+    public void mergePatch(DiffReport other) {
+        mergeRecords(other.records);
+        statistics.copyPatch(other.statistics);
+    }
+
+    private void mergeRecords(Map<String, List<CheckstyleRecord>> other) {
+        for (Entry<String, List<CheckstyleRecord>> item : other.entrySet()) {
+            addRecords(item.getValue(), item.getKey());
+        }
+    }
+
+    /**
      * Adds new records to the diff report,
      * when there are records with this filename, comparison
      * between them and new record is performed and only difference is saved.
@@ -94,7 +111,7 @@ public final class DiffReport {
      * Generates statistical information and puts in in the accumulator.
      * This method will wait for completion of all asynchronous tasks.
      */
-    public void getDiffStatistics() {
+    public void generateDiffStatistics() {
         statistics.setFileNumDiff(records.size());
         records.entrySet().stream()
             .flatMap(entry -> entry.getValue().stream())
@@ -117,4 +134,5 @@ public final class DiffReport {
         }
         statistics.incrementUniqueMessageCount(checkstyleRecord.getIndex());
     }
+
 }

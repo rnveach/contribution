@@ -20,93 +20,139 @@
 package com.github.checkstyle.data;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Utility class to calculate difference between 2 sorted lists.
  */
 public final class DiffUtils {
 
+    /** Number of records to process at a time when looking for differences. */
+    private static final int SPLIT_SIZE = 100;
+
     /** Private ctor. */
     private DiffUtils() {
     }
 
     /**
-     * Creates difference between 2 sorted lists.
+     * Creates difference between 2 lists of records.
      *
-     * @param firstList
+     * @param list1
      *        the first list.
-     * @param secondList
+     * @param list2
      *        the second list.
-     * @param <T> the type of elements.
      * @return the difference list.
      */
-    public static <T extends Comparable<T>> List<T> produceDiff(
-            List<T> firstList, List<T> secondList) {
-        final List<T> result;
-        if (firstList.isEmpty()) {
-            result = secondList;
+    public static List<CheckstyleRecord> produceDiff(
+            List<CheckstyleRecord> list1, List<CheckstyleRecord> list2) {
+        final List<CheckstyleRecord> diff;
+        try {
+            diff = produceDiffEx(list1, list2);
+            diff.addAll(produceDiffEx(list2, list1));
         }
-        else if (secondList.isEmpty()) {
-            result = firstList;
+        catch (InterruptedException | ExecutionException ex) {
+            throw new IllegalStateException("Multi-threading failure reported", ex);
+        }
+
+        return diff;
+    }
+
+    private static List<CheckstyleRecord> produceDiffEx(
+            List<CheckstyleRecord> list1, List<CheckstyleRecord> list2)
+            throws InterruptedException, ExecutionException {
+        final List<CheckstyleRecord> diff = new ArrayList<>();
+        if (list1.size() < SPLIT_SIZE) {
+            for (CheckstyleRecord rec1 : list1) {
+                if (!isInList(list2, rec1)) {
+                    diff.add(rec1);
+                }
+            }
         }
         else {
-            result = produceDiff(firstList.iterator(), secondList.iterator());
+            final ExecutorService executor =
+                Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+            final List<Future<List<CheckstyleRecord>>> futures = new ArrayList<>();
+            final int size = list1.size();
+            for (int i = 0; i < size; i += SPLIT_SIZE) {
+                futures.add(executor.submit(new MultiThreadedDiff(list1, list2, i, Math.min(size, i
+                        + SPLIT_SIZE))));
+            }
+
+            for (Future<List<CheckstyleRecord>> future : futures) {
+                diff.addAll(future.get());
+            }
+
+            executor.shutdown();
         }
-        return result;
+        return diff;
     }
 
     /**
-     * Creates difference between 2 non-empty iterators.
+     * Compares the record against list of records.
      *
-     * @param firstIterator
-     *        the first iterator.
-     * @param secondIterator
-     *        the second iterator.
-     * @param <T> the type of elements.
-     * @return the difference list (always sorted).
+     * @param list
+     *        of records.
+     * @param testedRecord
+     *        the record.
+     * @return true, if has its copy in a list.
      */
-    private static <T extends Comparable<T>> List<T> produceDiff(
-            Iterator<T> firstIterator, Iterator<T> secondIterator) {
-        T firstVal = firstIterator.next();
-        T secondVal = secondIterator.next();
-        final List<T> result = new ArrayList<>();
-        while (true) {
-            final int diff = firstVal.compareTo(secondVal);
-            if (diff < 0) {
-                result.add(firstVal);
-                if (!firstIterator.hasNext()) {
-                    result.add(secondVal);
-                    break;
-                }
-                firstVal = firstIterator.next();
-            }
-            else if (diff > 0) {
-                result.add(secondVal);
-                if (!secondIterator.hasNext()) {
-                    result.add(firstVal);
-                    break;
-                }
-                secondVal = secondIterator.next();
-            }
-            else {
-                if (!firstIterator.hasNext() || !secondIterator.hasNext()) {
-                    break;
-                }
-                firstVal = firstIterator.next();
-                secondVal = secondIterator.next();
+    private static boolean isInList(List<CheckstyleRecord> list,
+            CheckstyleRecord testedRecord) {
+        boolean belongsToList = false;
+        for (CheckstyleRecord checkstyleRecord : list) {
+            if (testedRecord.compareTo(checkstyleRecord) == 0) {
+                belongsToList = true;
+                break;
             }
         }
-        // add tails
-        while (firstIterator.hasNext()) {
-            result.add(firstIterator.next());
+        return belongsToList;
+    }
+
+    /** Separate class to multi-thread 2 lists checking if items from 1 is in the other. */
+    private static final class MultiThreadedDiff implements Callable<List<CheckstyleRecord>> {
+        /** First list to examine. */
+        private List<CheckstyleRecord> list1;
+        /** Second list to examine. */
+        private List<CheckstyleRecord> list2;
+        /** Inclusive start position of the first list. */
+        private int list1Start;
+        /** Non-inclusive End position of the first list. */
+        private int list1End;
+
+        /**
+         * Default constructor.
+         *
+         * @param list1 First list to examine.
+         * @param list2 Second list to examine.
+         * @param list1Start Inclusive start position of the first list.
+         * @param list1End Non-inclusive End position of the first list.
+         */
+        private MultiThreadedDiff(List<CheckstyleRecord> list1, List<CheckstyleRecord> list2,
+                int list1Start, int list1End) {
+            this.list1 = list1;
+            this.list2 = list2;
+            this.list1Start = list1Start;
+            this.list1End = list1End;
         }
-        while (secondIterator.hasNext()) {
-            result.add(secondIterator.next());
+
+        @Override
+        public List<CheckstyleRecord> call() throws Exception {
+            final List<CheckstyleRecord> diff = new ArrayList<>();
+
+            for (int i = list1Start; i < list1End; i++) {
+                final CheckstyleRecord rec1 = list1.get(i);
+
+                if (!isInList(list2, rec1)) {
+                    diff.add(rec1);
+                }
+            }
+            return diff;
         }
-        return Collections.unmodifiableList(result);
     }
 
 }
