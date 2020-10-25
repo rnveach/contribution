@@ -21,7 +21,9 @@ package com.github.checkstyle.parser;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -147,6 +149,8 @@ public final class CheckstyleReportsParser {
         }
 
         executor.shutdown();
+        
+        System.out.println("Merging XML results");
 
         content.mergePatch(patchContent);
         content.generateDiffStatistics();
@@ -174,9 +178,11 @@ public final class CheckstyleReportsParser {
 
         @Override
         public DiffReport call() throws Exception {
+            System.out.println("Parsing " + xml + ". " + new SimpleDateFormat("yyyy.MM.dd HH.mm.ss.SSS").format(new Date()));
             final DiffReport output = new DiffReport();
             final XMLEventReader reader = StaxUtils.createReader(xml);
             parseXmlPortion(output, reader, readerIndex);
+            System.out.println("Done Parsing " + xml + ". " + new SimpleDateFormat("yyyy.MM.dd HH.mm.ss.SSS").format(new Date()));
             return output;
         }
 
